@@ -1,1 +1,29 @@
+#define PIR_PIN 19   // PIR sensor output pin
+#define LED_PIN 4    // LED pin
 
+int motionState = 0;
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(PIR_PIN, INPUT);   
+  pinMode(LED_PIN, OUTPUT);  
+
+  Serial.println("PIR Motion Detection Started");
+}
+
+void loop() {
+   
+   motionState = digitalRead(PIR_PIN);   // Read PIR sensor
+
+   if (motionState == HIGH) {
+    Serial.println("Motion Detected");
+    digitalWrite(LED_PIN, HIGH);    
+   }
+   else {
+    Serial.println("No Motion Detected");
+    digitalWrite(LED_PIN, LOW);     
+   }
+
+  delay(500); 
+}
