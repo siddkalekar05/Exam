@@ -1,1 +1,22 @@
+int LDRPIN=26;
+int LEDPIN =2;
+int threshold = 500;
+void setup() {
+  pinMode(LDRPIN,INPUT);
+  pinMode(LEDPIN, OUTPUT);
+  Serial.begin(9600);
+}
+void loop() {
+  int LDRValue = analogRead(LDRPIN);
+  Serial.println(LDRValue);
+
+  if(LDRValue<threshold)
+  {digitalWrite(LEDPIN, HIGH);
+  }
+  else{
+    digitalWrite(LEDPIN, LOW);
+  }
+  delay(100);
+  
+}
 
