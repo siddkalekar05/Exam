@@ -1,0 +1,83 @@
+-- Step 1: Create Database
+CREATE DATABASE college_db;
+USE college_db;
+
+-- =========================================
+-- Step 2: Original Table (Unnormalized Form)
+-- =========================================
+CREATE TABLE student_course (
+    StudentID INT,
+    StudentName VARCHAR(50),
+    CourseName VARCHAR(50),
+    Instructor VARCHAR(50)
+);
+
+-- Insert Sample Data
+INSERT INTO student_course VALUES
+(1, 'Aditi', 'DBMS', 'Dr. Rao'),
+(1, 'Aditi', 'CN', 'Dr. Mehta'),
+(2, 'Rahul', 'DBMS', 'Dr. Rao'),
+(3, 'Meena', 'OS', 'Dr. Sharma');
+
+-- =========================================
+-- Step 3: 1NF (Already Atomic - No Change)
+-- =========================================
+-- Data is already in atomic form (no multivalued attributes)
+
+-- =========================================
+-- Step 4: 2NF (Remove Partial Dependency)
+-- =========================================
+
+-- Student Table
+CREATE TABLE Student (
+    StudentID INT PRIMARY KEY,
+    StudentName VARCHAR(50)
+);
+
+-- Course Table
+CREATE TABLE Course (
+    CourseName VARCHAR(50) PRIMARY KEY,
+    Instructor VARCHAR(50)
+);
+
+-- Enrollment Table (Relation Table)
+CREATE TABLE Enrollment (
+    StudentID INT,
+    CourseName VARCHAR(50),
+    PRIMARY KEY (StudentID, CourseName),
+    FOREIGN KEY (StudentID) REFERENCES Student(StudentID),
+    FOREIGN KEY (CourseName) REFERENCES Course(CourseName)
+);
+
+-- =========================================
+-- Step 5: Insert Data into Normalized Tables
+-- =========================================
+
+INSERT INTO Student VALUES
+(1, 'Aditi'),
+(2, 'Rahul'),
+(3, 'Meena');
+
+INSERT INTO Course VALUES
+('DBMS', 'Dr. Rao'),
+('CN', 'Dr. Mehta'),
+('OS', 'Dr. Sharma');
+
+INSERT INTO Enrollment VALUES
+(1, 'DBMS'),
+(1, 'CN'),
+(2, 'DBMS'),
+(3, 'OS');
+
+-- =========================================
+-- Step 6: 3NF (Already Satisfied)
+-- =========================================
+-- No transitive dependencies exist
+
+-- =========================================
+-- Verification Query
+-- =========================================
+SELECT s.StudentName, e.CourseName, c.Instructor
+FROM Student s
+JOIN Enrollment e ON s.StudentID = e.StudentID
+JOIN Course c ON e.CourseName = c.CourseName;
