@@ -1,0 +1,41 @@
+-- Step 1: Create Database
+CREATE DATABASE college_db;
+USE college_db;
+
+-- Step 2: Create Tables
+CREATE TABLE student (
+    student_id INT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    department VARCHAR(30),
+    year INT,
+    email VARCHAR(50) UNIQUE
+);
+
+CREATE TABLE course (
+    course_id INT PRIMARY KEY,
+    course_name VARCHAR(50),
+    credits INT
+);
+
+-- Step 3: ALTER TABLE Operations
+
+-- Add new column
+ALTER TABLE student ADD phone VARCHAR(15);
+
+-- Modify column datatype
+ALTER TABLE student MODIFY department VARCHAR(40);
+
+-- Drop column
+ALTER TABLE student DROP COLUMN year;
+
+-- Step 4: TRUNCATE TABLE (delete all records)
+TRUNCATE TABLE student;
+TRUNCATE TABLE course;
+
+-- Step 5: RENAME TABLE
+RENAME TABLE student TO student_details;
+RENAME TABLE course TO course_details;
+
+-- Step 6: DROP TABLE (delete permanently)
+DROP TABLE course_details;
+DROP TABLE student_details;
