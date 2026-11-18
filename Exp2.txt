@@ -1,4 +1,4 @@
-//Installation Steps 
+//Steps 
 
 Step 1: Open Ubuntu WSL from Windows Terminal or PowerShell.
 wsl
