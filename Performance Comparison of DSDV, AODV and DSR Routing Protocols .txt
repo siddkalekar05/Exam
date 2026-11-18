@@ -1,0 +1,143 @@
+//Execution Procedure
+
+Step 1: Open Ubuntu WSL.
+wsl
+
+Step 2: Move to the NS-3 directory.
+cd ~/ns-3-dev
+
+Step 3: Create a new C++ file inside the scratch directory.
+nano scratch/exp9-routing-comparison.cc
+
+Step 4: Write or paste the Practical 9 program from the lab manual. 
+
+Step 5: Save the file by pressing Ctrl + O, then Enter. Exit using Ctrl + X.
+
+Step 6: Run the simulation using the DSDV routing protocol.
+./ns3 run 'scratch/exp9-routing-comparison --protocol=DSDV'
+
+Step 7: Run the simulation using the AODV routing protocol.
+./ns3 run 'scratch/exp9-routing-comparison --protocol=AODV'
+
+Step 8: Run the simulation using the DSR routing protocol.
+./ns3 run 'scratch/exp9-routing-comparison --protocol=DSR'
+
+Step 9: Check the generated PCAP files.
+ls *.pcap
+
+Step 10: Check the FlowMonitor XML output file.
+ls routing-flowmon.xml
+
+Step 11: Open Wireshark.
+wireshark
+
+Step 12: Open the generated PCAP files and examine the available routing and data traffic.
+
+//Program
+
+#include "ns3/core-module.h" 
+#include "ns3/network-module.h" 
+#include "ns3/internet-module.h" 
+#include "ns3/wifi-module.h" 
+#include "ns3/mobility-module.h" 
+#include "ns3/applications-module.h" 
+#include "ns3/dsdv-module.h" 
+#include "ns3/aodv-module.h" 
+#include "ns3/dsr-module.h" 
+#include "ns3/flow-monitor-module.h" 
+ 
+using namespace ns3; 
+ 
+int main(int argc, char *argv[]) 
+{ 
+    std::string protocol = "AODV"; 
+    uint32_t nNodes = 20; 
+    double simTime = 60.0; 
+    CommandLine cmd; 
+    cmd.AddValue("protocol", "Routing protocol: DSDV, AODV, or DSR", protocol); 
+    cmd.AddValue("nNodes", "Number of wireless nodes", nNodes); 
+    cmd.AddValue("simTime", "Simulation duration in seconds", simTime); 
+    cmd.Parse(argc, argv); 
+ 
+    if (protocol != "DSDV" && protocol != "AODV" && protocol != "DSR") 
+    { 
+        NS_FATAL_ERROR("Choose protocol DSDV, AODV, or DSR"); 
+    } 
+ 
+    NodeContainer nodes; 
+                                                                                                                                                                                                   
+ 
+    nodes.Create(nNodes); 
+ 
+    YansWifiChannelHelper channel = YansWifiChannelHelper::Default(); 
+    YansWifiPhyHelper phy; 
+    phy.SetChannel(channel.Create()); 
+ 
+    WifiHelper wifi; 
+    wifi.SetStandard(WIFI_STANDARD_80211g); 
+    WifiMacHelper mac; 
+    mac.SetType("ns3::AdhocWifiMac"); 
+    NetDeviceContainer devices = wifi.Install(phy, mac, nodes); 
+ 
+    MobilityHelper mobility; 
+    mobility.SetPositionAllocator("ns3::RandomRectanglePositionAllocator", 
+        "X", StringValue("ns3::UniformRandomVariable[Min=0.0|Max=200.0]"), 
+        "Y", StringValue("ns3::UniformRandomVariable[Min=0.0|Max=200.0]")); 
+    mobility.SetMobilityModel("ns3::RandomWaypointMobilityModel", 
+        "Speed", StringValue("ns3::UniformRandomVariable[Min=1.0|Max=5.0]"), 
+        "Pause", StringValue("ns3::ConstantRandomVariable[Constant=1.0]"), 
+        "PositionAllocator", PointerValue()); 
+    mobility.Install(nodes); 
+ 
+    InternetStackHelper internet; 
+    if (protocol == "DSDV") 
+    { 
+        DsdvHelper routing; 
+        internet.SetRoutingHelper(routing); 
+        internet.Install(nodes); 
+    } 
+    else if (protocol == "AODV") 
+    { 
+        AodvHelper routing; 
+        internet.SetRoutingHelper(routing); 
+        internet.Install(nodes); 
+    } 
+    else 
+    { 
+                                                                                                                                                                                                   
+ 
+        internet.Install(nodes); 
+        DsrMainHelper dsrMain; 
+        DsrHelper dsr; 
+        dsrMain.Install(dsr, nodes); 
+    } 
+ 
+    Ipv4AddressHelper address; 
+    address.SetBase("10.1.0.0", "255.255.0.0"); 
+    Ipv4InterfaceContainer interfaces = address.Assign(devices); 
+ 
+    uint16_t port = 9; 
+    UdpEchoServerHelper server(port); 
+    ApplicationContainer serverApps = server.Install(nodes.Get(nNodes - 1)); 
+    serverApps.Start(Seconds(1.0)); 
+    serverApps.Stop(Seconds(simTime - 1)); 
+ 
+    UdpEchoClientHelper client(interfaces.GetAddress(nNodes - 1), port); 
+    client.SetAttribute("MaxPackets", UintegerValue(100)); 
+    client.SetAttribute("Interval", TimeValue(Seconds(0.5))); 
+    client.SetAttribute("PacketSize", UintegerValue(256)); 
+    ApplicationContainer clientApps = client.Install(nodes.Get(0)); 
+    clientApps.Start(Seconds(5.0)); 
+    clientApps.Stop(Seconds(simTime - 2)); 
+ 
+    FlowMonitorHelper flowHelper; 
+    Ptr<FlowMonitor> monitor = flowHelper.InstallAll(); 
+    phy.EnablePcapAll("routing-comparison"); 
+ 
+    Simulator::Stop(Seconds(simTime)); 
+    Simulator::Run(); 
+    monitor->CheckForLostPackets(); 
+    monitor->SerializeToXmlFile("routing-flowmon.xml", true, true); 
+    Simulator::Destroy(); 
+    return 0; 
+}
