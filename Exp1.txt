@@ -1,0 +1,30 @@
+ //Installation Procedure 
+Step 1: Update the Ubuntu package list. 
+sudo apt update 
+
+Step 2: Upgrade installed packages. 
+sudo apt upgrade 
+
+Step 3: Install the required development tools. 
+sudo apt install g++ gcc python3 python3-pip cmake git 
+
+Step 4: Install Wireshark. 
+sudo apt install wireshark 
+
+Step 5: Launch Wireshark. 
+wireshark 
+
+Step 6: Download the NS-3 source code. 
+git clone https://gitlab.com/nsnam/ns-3-dev.git 
+
+Step 7: Move into the NS-3 directory. 
+cd ns-3-dev 
+
+Step 8: Configure NS-3. 
+./ns3 configure 
+
+Step 9: Build NS-3. 
+./ns3 build 
+
+Step 10: Run the sample simulation. 
+./ns3 run hello-simulator 
