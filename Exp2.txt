@@ -1,3 +1,32 @@
+//Installation Steps 
+
+Step 1: Open Ubuntu WSL from Windows Terminal or PowerShell.
+wsl
+
+Step 2: Move to the NS-3 directory.
+cd ~/ns-3-dev
+
+Step 3: Create a new C++ file inside the scratch directory.
+nano scratch/exp2-point-to-point.cc
+
+Step 4: Write or paste the Practical 2 program from the lab manual. 
+
+Step 5: Save the file by pressing Ctrl + O, then Enter. Exit using Ctrl + X.
+
+Step 6: Run the Practical 2 simulation.
+./ns3 run scratch/exp2-point-to-point
+
+Step 7: Check the generated PCAP files.
+ls *.pcap
+
+Step 8: Open Wireshark.
+wireshark
+
+Step 9: Open the generated point-to-point PCAP file in Wireshark and apply the UDP display filter.
+udp
+
+Step 10: Observe 
+
 /// Program 
 #include "ns3/core-module.h" 
 #include "ns3/network-module.h" 
